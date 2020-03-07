@@ -27,7 +27,7 @@ def main(args):
     input_ecg = TensorDataset(patient_ecg)
     testloader = DataLoader(input_ecg,batch_len)
 
-    SAVED_MODEL_PATH = "model.pt"
+    SAVED_MODEL_PATH = args.saved_model_path
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")    
     
     peak_locs = load_model_CNN(SAVED_MODEL_PATH,testloader,device,batch_len,window_size)     
@@ -112,10 +112,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_dir',help = 'Path to all the records')
-    parser.add_argument('--patient_no',type = int,help = 'Patient used for testing')
-    parser.add_argument('--save_dir',help = 'Directory used for saving')
-    parser.add_argument('--viewer',type = int, help = 'To view ECG plot: 1, else: 0')
-
+    parser.add_argument('--saved_model_path',help = 'Saved Model path')
+    parser.add_argument('--patient_no',default = 3,type = int,help = 'Patient used for testing')
+    parser.add_argument('--save_dir',default = 'saved_models/',help = 'Directory used for saving')
+    parser.add_argument('--viewer',default = 0,type = int, help = 'To view ECG plot: 1, else: 0')
+    
     args = parser.parse_args()
 
     main(args)
