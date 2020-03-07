@@ -12,9 +12,9 @@ def data_read(args):
     patient_no -= 1
 
     path_dir = args.path_dir
-    file_dirs = sorted(glob.glob(path_dir+'infant*'))    
+    file_dirs = sorted(glob.glob(path_dir+'infant*'))   
     patient = {'ecg':[],'resp':[],'r_peaks':[],'resp_peaks':[],'brad_onset':[],'ecg_fs':[],'resp_fs':[]}
-
+    
     for i in range(0,len(file_dirs),7):
         if (i == 7 * patient_no):
             
@@ -75,7 +75,8 @@ def windowing_and_resampling(patient):
             if (final_resp_sample_rate * no_sec) != window_len:
                 windowed_patient['resp'][infant_no][i] = custom_resample(windowed_patient['resp'][infant_no][i],patient['resp_fs'][infant_no])
         infant_no += 1
-     
+    
+
     return windowed_patient_overlap,windowed_patient
 
 def custom_resample(resp,fs):

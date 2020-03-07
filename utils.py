@@ -98,3 +98,9 @@ def peak_finder(y_pred_array,x_test):
         peak_locs[i] = peak_locs[i][(peak_locs[i] >= 0.5*fs_) & (peak_locs[i] <= 9.5*fs_)]
     modified_peak_locs = peak_correction(peak_locs,x_test)
     return modified_peak_locs
+
+def compute_heart_rate(r_peaks):
+    fs_ = 500
+    r_peaks = r_peaks[(r_peaks >= 0.5*fs_) & (r_peaks <= 9.5*fs_)]
+    return round( 60 * fs_ / np.mean(np.diff(r_peaks)))
+        

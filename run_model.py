@@ -11,7 +11,7 @@ import torch
 from torch.utils.data import TensorDataset,DataLoader
 
 from preprocess_data import data_read,windowing_and_resampling
-from utils import load_model_CNN
+from utils import load_model_CNN,compute_heart_rate
 
 def main(args):
     
@@ -23,7 +23,6 @@ def main(args):
 
     batch_len = 128
     window_size = 5000
-
     patient_ecg = torch.from_numpy(patient_ecg).view(patient_ecg.shape[0],1,patient_ecg.shape[1]).float()
     input_ecg = TensorDataset(patient_ecg)
     testloader = DataLoader(input_ecg,batch_len)
@@ -32,7 +31,7 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")    
     
     peak_locs = load_model_CNN(SAVED_MODEL_PATH,testloader,device,batch_len,window_size)     
-
+    
     ### Finding Stored Paths
     save_dir = args.save_dir
     if not(os.path.isdir(save_dir)):
@@ -57,7 +56,7 @@ def main(args):
         ecg_point = []
         ecg_point_1 = []
         k = 0
-
+        hr = []
         peak_locs = peak_locs[:,1]
         for j in range(len(peak_locs)):     
             if(peak_locs[j] < 5000*i):
@@ -67,6 +66,7 @@ def main(args):
                     k = k+1                         
             elif(peak_locs[j] >= 5000*i):
                 scatter_peak_1.append(np.asarray(scatter_peak))
+                hr.append(compute_heart_rate(scatter_peak_1[i-1]))
                 ecg_point_1.append(np.asarray(ecg_point))                     
                 scatter_peak = []
                 ecg_point = []
@@ -95,6 +95,9 @@ def main(args):
             print(scatter_peak_1[np.int(window_no)])
             print(ecg_point_1[np.int(window_no)])
             #l.set_xdata((window_no-1)*5000:window_no*5000)
+            print(hr[np.int(window_no)])
+            ax.set_visible(False)
+            ax.set_visible(True)
             l.set_ydata(actual_ecg_windows[:,np.int(window_no)])
             xx = np.vstack((scatter_peak_1[np.int(window_no)],ecg_point_1[np.int(window_no)]))
             scat.set_offsets(xx.T)
