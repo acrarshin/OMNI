@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm as tqdm
 from scipy import signal
 
+### Use standard scaler
+
 def data_read(args):
     
     patient_no = args.patient_no

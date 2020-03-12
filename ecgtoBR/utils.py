@@ -1,37 +1,44 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as functional
+
 import numpy as np
 import pandas as pd
 import scipy.signal
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-
 def testDataEval(model, loader, criterion):
+    
     model.eval()
     
     with torch.no_grad():
+        
         total_loss = 0
-        for step,(x,y) in loader:
+        
+        for (x,y) in loader:
+            
             ecg,BR = x.cuda(),y.cuda()
             BR_pred = model(ecg)
-            
             loss = criterion(BR_pred, BR)
-            total_loss+= loss
-            break
-        print (total_loss)
+            total_loss += loss
+            
+    return total_loss
 
 def smooth(signal,window_len=50):
+    
     y = pd.DataFrame(signal).rolling(window_len,center = True, min_periods = 1).mean().values.reshape((-1,))
     return y
 
 def findValleys(signal, prominence = 10, is_smooth = True , distance = 10):
+    
     """ Return prominent peaks and valleys based on scipy's find_peaks function """
     smoothened = smooth(-1*signal)
     valley_loc = scipy.signal.find_peaks(smoothened, prominence= 0.07)[0]
+    
     return valley_loc
 
 def getBR(signal, model):
+    
     model.eval()
     with torch.no_grad():
         transformPredicted = model(signal)
@@ -39,7 +46,21 @@ def getBR(signal, model):
     valleys = findValleys(transformPredicted)
     return valleys, transformPredicted
 
+def save_model(exp_dir, epoch, model, optimizer,best_dev_loss):
+
+    out = torch.save(
+        {
+            'epoch': epoch,
+            'model': model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+            'best_dev_loss': best_dev_loss,
+            'exp_dir':exp_dir
+        },
+        f=exp_dir + '/best_model.pt'
+    )
+
 def dist_transform(signal, ann):
+    
     length = len(signal)
     transform = []
 
@@ -73,6 +94,7 @@ def dist_transform(signal, ann):
     return transform
 
 
-def getWindow(signal,ann, windows = 5, freq = fs, overlap = 0.5):
+def getWindow(signal,ann, windows = 5, freq  = 125, overlap = 0.5):
+    
     for start in range(0,len(signal),int((1-overlap)*freq*windows)):
         yield (signal[start: start + windows*freq, :],[x-start for x in ann if x >= start and x < start+windows*freq])
