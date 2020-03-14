@@ -1,4 +1,4 @@
-# Smart Infant Monitoring
+# OMNI (Open Source Monitoring of Neonates and Infants) 
 
 ### Train a model to extract R peaks and Heart Rate from ECG.  
 * Download ECG MITDB monitoring data from https://storage.googleapis.com/mitdb-1.0.0.physionet.org/mit-bih-arrhythmia-database-1.0.0.zip and unzip it.
