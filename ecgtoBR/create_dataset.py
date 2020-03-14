@@ -16,6 +16,9 @@ from utils import dist_transform,getWindow
 
 def data_preprocess(args):
 
+    """ Preprocess data and create train - validate split
+    """
+
     dat_path = os.path.join(args.data_path,'*.dat')
     paths = glob(dat_path)
 
@@ -23,7 +26,7 @@ def data_preprocess(args):
 
     fs = args.sampling_freq
     fs_upsample = args.upsample_freq
-    windowLength = args.window_length 
+    WINDOWS = args.window_length 
 
     ecgSignals = []
     BRSignals = []
@@ -48,9 +51,7 @@ def data_preprocess(args):
     BRSignals = np.array(BRSignals, ndmin = 2)
 
     signals = np.stack([ecgSignals,BRSignals], axis= -1 )
-            
-    WINDOWS = 10
-    r=0
+
     inputECG = []
     groundTruth = []
 
@@ -71,7 +72,7 @@ def data_preprocess(args):
             resampled = scaler.fit_transform(resampled.reshape((-1,1)))
             transform = dist_transform(br,ann)
             
-            if resampled.shape == (5000,1) and transform.shape == (1250,1):
+            if resampled.shape == (fs_upsample*WINDOWS,1) and transform.shape == (WINDOWS*fs,1):
                 inputECG.append(resampled.reshape((1,-1)))
                 groundTruth.append(transform.reshape((1,-1)))
 

@@ -13,6 +13,9 @@ from create_dataset import data_preprocess
 from utils import testDataEval,save_model
 
 def train(args):
+
+    """Train model to get Breathing rate from ECG
+    """
     
     PATH = 'data'
     X_train = torch.load(PATH + '/ecgtoBR_train_data.pt')
@@ -79,6 +82,7 @@ def train(args):
 
 
 if __name__ == "__main__":
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--preprocess_data',action = 'store_true', help = 'Use if True')

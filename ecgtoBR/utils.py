@@ -8,6 +8,12 @@ import scipy.signal
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 def testDataEval(model, loader, criterion):
+
+    """Test model on dataloader
+    
+    Returns:
+        float -- total loss
+    """
     
     model.eval()
     
@@ -25,19 +31,47 @@ def testDataEval(model, loader, criterion):
     return total_loss
 
 def smooth(signal,window_len=50):
+    """Compute moving average of specified window length
+    
+    Arguments:
+        signal {[ndarray]} -- signal to smooth
+    
+    Keyword Arguments:
+        window_len {int} -- size of window over which average is to be computed (default: {50})
+    
+    Returns:
+        ndarray   -- smoothed signal
+    """
     
     y = pd.DataFrame(signal).rolling(window_len,center = True, min_periods = 1).mean().values.reshape((-1,))
     return y
 
-def findValleys(signal, prominence = 10, is_smooth = True , distance = 10):
+def findValleys(signal, prominence = 0.07):
+    """Find valleys of distance transform to estimate breath positions   
+    Arguments:
+        signal {[ndarray]} -- transform to get breath positions
     
-    """ Return prominent peaks and valleys based on scipy's find_peaks function """
+    Keyword Arguments:
+        prominence {int} -- threshold prominence to detect peaks (default: {0.07})
+    
+    Returns:
+        ndarray -- valley locations in signal
+    """
     smoothened = smooth(-1*signal)
-    valley_loc = scipy.signal.find_peaks(smoothened, prominence= 0.07)[0]
+    valley_loc = scipy.signal.find_peaks(smoothened, prominence= prominence)[0]
     
     return valley_loc
 
 def getBR(signal, model):
+    """ Get Breathing Rate after passing ECG through Model
+    
+    Arguments:
+        signal {[torch tensor]} -- input ECG signal
+        model  -- ECG to BR model
+    
+    Returns:
+        ndarray -- position of predicted valley and corresponding predicted transform
+    """
     
     model.eval()
     with torch.no_grad():
@@ -47,7 +81,15 @@ def getBR(signal, model):
     return valleys, transformPredicted
 
 def save_model(exp_dir, epoch, model, optimizer,best_dev_loss):
-
+    """ save checkpoint of model 
+    
+    Arguments:
+        exp_dir {string} -- Path to checkpoint
+        epoch {int} -- epoch at which model is checkpointed
+        model -- model state to be checkpointed
+        optimizer {torch optimizer object} -- optimizer state of model to be checkpoint
+        best_dev_loss {float} -- loss of model to be checkpointed
+    """
     out = torch.save(
         {
             'epoch': epoch,
@@ -60,6 +102,12 @@ def save_model(exp_dir, epoch, model, optimizer,best_dev_loss):
     )
 
 def dist_transform(signal, ann):
+
+    """ Compute distance transform of Respiration signaal based on breath positions
+    
+    Returns:
+       ndarray -- transformed signal
+    """
     
     length = len(signal)
     transform = []
@@ -68,13 +116,13 @@ def dist_transform(signal, ann):
     if len(ann) == 0:
         return None
     if len(ann) ==1:
-        for i in range(len(signal)):
+        for i in range(length):
             transform.append(abs(i-ann[sample]))
     else:
-        for i in range(len(signal)):
+        for i in range(length):
 
             if sample+1 == len(ann):
-                for j in range(i,len(signal)):
+                for j in range(i,length):
 
                     transform.append(abs(j - nextAnn))
                 break
@@ -94,7 +142,21 @@ def dist_transform(signal, ann):
     return transform
 
 
-def getWindow(signal,ann, windows = 5, freq  = 125, overlap = 0.5):
+def getWindow(signal,ann, windows = 10, freq  = 125, overlap = 0.5):
+    """Generate ECG and Respiration signals with annotations of specified window length
+    
+    Arguments:
+        signal {2-D array} -- array containing ecg at index 0 and resp at index 1
+        ann {list} -- annotations within specified window
+    
+    Keyword Arguments:
+        windows {int} -- size of window in seconds (default: {5})
+        freq {int} -- sampling rate in Hz (default: {125})
+        overlap {float} -- percentage of overlap between windows (default: {0.5})
+    
+    Yields:
+        tuple -- signals and correspoinding annotations
+    """
     
     for start in range(0,len(signal),int((1-overlap)*freq*windows)):
         yield (signal[start: start + windows*freq, :],[x-start for x in ann if x >= start and x < start+windows*freq])
