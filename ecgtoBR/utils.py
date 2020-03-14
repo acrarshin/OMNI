@@ -11,6 +11,10 @@ def testDataEval(model, loader, criterion):
 
     """Test model on dataloader
     
+    Arguments:
+        model {torch object} -- Model   
+        loader {torch object} -- Data Loader  
+        criterion {torch object} -- Loss Function
     Returns:
         float -- total loss
     """
@@ -34,7 +38,7 @@ def smooth(signal,window_len=50):
     """Compute moving average of specified window length
     
     Arguments:
-        signal {[ndarray]} -- signal to smooth
+        signal {ndarray} -- signal to smooth
     
     Keyword Arguments:
         window_len {int} -- size of window over which average is to be computed (default: {50})
@@ -49,7 +53,7 @@ def smooth(signal,window_len=50):
 def findValleys(signal, prominence = 0.07):
     """Find valleys of distance transform to estimate breath positions   
     Arguments:
-        signal {[ndarray]} -- transform to get breath positions
+        signal {ndarray} -- transform to get breath positions
     
     Keyword Arguments:
         prominence {int} -- threshold prominence to detect peaks (default: {0.07})
@@ -66,7 +70,7 @@ def getBR(signal, model):
     """ Get Breathing Rate after passing ECG through Model
     
     Arguments:
-        signal {[torch tensor]} -- input ECG signal
+        signal {torch tensor} -- input ECG signal
         model  -- ECG to BR model
     
     Returns:
@@ -104,7 +108,9 @@ def save_model(exp_dir, epoch, model, optimizer,best_dev_loss):
 def dist_transform(signal, ann):
 
     """ Compute distance transform of Respiration signaal based on breath positions
-    
+    Arguments:
+        signal{ndarray} -- The ECG signal  
+        ann{ndarray} -- The ground truth R-Peaks
     Returns:
        ndarray -- transformed signal
     """

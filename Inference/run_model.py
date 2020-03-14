@@ -23,8 +23,8 @@ def main(args):
     windowed_patient_overlap,windowed_patient = windowing_and_resampling(preprocessed_patient_data)
     print('-------- Pre-processing Complete ---------')
     ###
-    patient_ecg = np.asarray(windowed_patient_overlap['ecg'][0][:4])
-    actual_ecg_windows = np.asarray(windowed_patient['ecg'][0][:4])
+    patient_ecg = np.asarray(windowed_patient_overlap['ecg'][0][:40])
+    actual_ecg_windows = np.asarray(windowed_patient['ecg'][0][:40])
     ###
     batch_len = 128
     window_size = 5000
@@ -43,9 +43,13 @@ def main(args):
         os.mkdir(save_dir)
 
     save_path =  save_dir + '/r_peaks_patient_' + str(args.patient_no) + '.csv'
-    
-    peak_locs_for_plot = peak_locs
 
+    all_hr = []
+    initial_hr = len([peak for peak in list(peak_locs) if peak < 5000 * 6])
+    
+    for i in range(patient_ecg.shape[0]):
+        all_hr.append( len([peak for peak in list(peak_locs) if peak > i * 2500 and peak < (i * 2500 ) + 30000 ]) )
+        
     peak_no = np.linspace(1,len(peak_locs),len(peak_locs)).astype(int)
     peak_no = peak_no.reshape(-1,1)
     peak_locs = peak_locs.reshape(-1,1) 
@@ -84,7 +88,7 @@ def main(args):
                 ecg_point.append(actual_ecg_windows[i-1,scatter_peak[k]])
                 k = k+1
 
-    create_dashboard(actual_ecg_windows,scatter_peak_1)
+    create_dashboard(actual_ecg_windows,scatter_peak_1,all_hr)
     
     if(args.viewer):
         i = 1
@@ -114,7 +118,6 @@ def main(args):
                     ecg_point.append(actual_ecg_windows[i-1,scatter_peak[k]])
                     k = k+1
         
-
         actual_ecg_windows = actual_ecg_windows.transpose(1,0)
         print('.......Displaying..........')
         fig, ax = plt.subplots()

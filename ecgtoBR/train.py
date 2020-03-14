@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('--sampling_freq',default = 125, type = int, help = 'Sampling Frequency')
     parser.add_argument('--upsample_freq',default = 500, type = int, help = 'Resampling Frequency')
     parser.add_argument('--window_length',default = 5,type = int,help = 'Window Length in seconds')
-    parser.add_argument('--data_path',help = 'Path to unzipped.rar dataset')
+    parser.add_argument('--data_path',help = 'Path to data')
     
     parser.add_argument('--random_seed',default = 5,type = int,help = 'Random Seed initializer')
     args = parser.parse_args()

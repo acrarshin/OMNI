@@ -10,9 +10,9 @@ import tkinter as tk
 import pyqtgraph.ptime as ptime
 
 
-def create_dashboard(data, peaks):
-    global i, cnt, j, pk, xk, yk, posx, posy, text, hr
-
+def create_dashboard(data, peaks,all_hr):
+    global i, cnt, j, pk, xk, yk, posx, posy, text, hr, curvePoint, flag, aPos, hrc, rpeaks
+  
     class KeyPressWindow(pg.GraphicsLayoutWidget):
         sigKeyPress = QtCore.pyqtSignal(object)
         def keyPressEvent(self, ev):
@@ -28,20 +28,24 @@ def create_dashboard(data, peaks):
 
     timer = QtCore.QTimer()
     app = QtGui.QApplication(sys.argv)
-
+    
    
     w1 = KeyPressWindow()
-    w1.setBackground((155, 155, 155))
+    # w1.setBackground((155, 155, 155))
     w1.sigKeyPress.connect(keyPressed)
     w1.show()
     w1.resize(tk.Tk().winfo_screenwidth(), tk.Tk().winfo_screenheight())
     
     cnt = 0
     s4 = pg.ScatterPlotItem(size=10, pen=pg.mkPen(0.5), brush=pg.mkBrush(0, 0, 255, 120))
-    st =1
-    j = 0
-    ax=[]
-    hr =50
+    st = 1
+    j = 5
+    rpeaks = 0
+    hrc = 0
+    aPos = 0
+    ax = []
+    flag = 0
+    hr = all_hr[hrc]
    ############ECG PLOT#############
     p = w1.addPlot(row = 0, col = 0, colspan = 3)
     p.hideAxis('left')
@@ -84,6 +88,14 @@ def create_dashboard(data, peaks):
     font.setPointSize(86)
     text.setFont(font)
 
+    textbpm = pg.TextItem( "test",color = (0,0,0), anchor=(-0.3,0.5))
+    changingLabel = QtGui.QLabel()
+    font = changingLabel.font()
+    font.setPointSize(40)
+    textbpm.setFont(font)
+    textbpm.setText("BPM")
+    textbpm.setPos(200, y.max()/2 - 160)
+
     texthr = pg.TextItem( "test",color = (0,0,0), anchor=(-0.3,0.5))
     changingLabel = QtGui.QLabel()
     fonthr = changingLabel.font()
@@ -93,6 +105,7 @@ def create_dashboard(data, peaks):
     texthr.setPos(130, y.max()/2 - 220)
     
     p1.addItem(text) 
+    # p1.addItem(textbpm)
     p1.addItem(texthr) 
     
     #################################
@@ -120,7 +133,6 @@ def create_dashboard(data, peaks):
     font1.setPointSize(86)
     text1.setFont(font1)
     
-    
     textbr = pg.TextItem( "test",color = (0,0,0), anchor=(-0.3,0.5))
     changingLabel = QtGui.QLabel()
     fontbr = changingLabel.font()
@@ -138,22 +150,33 @@ def create_dashboard(data, peaks):
     p3.plot(x = x1,y = y1, pen=(255, 255, 255))
     vb3 = p3.getViewBox()
     vb3.setBackgroundColor((255, 255, 255))
-    
+    x4 = np.linspace(0, 850, 10)
+    y4 = [283 for x in x4]
+    fileName3 = '/home/hticpose/Pictures/yellow.jpg'
+    img3 = pg.QtGui.QGraphicsPixmapItem(pg.QtGui.QPixmap(fileName3))
+    p3.addItem(img3)
+    curve = p3.plot(x = x4,y = y4, pen=(255, 255, 255))
+    curvePoint = pg.CurvePoint(curve)
+    p3.addItem(curvePoint)
+    arrow2 = pg.ArrowItem(angle=90)
+    arrow2.setStyle(headLen = 30)
+    arrow2.setParentItem(curvePoint)
+    curvePoint.setPos(aPos)    
     p3.hideAxis('left')
     p3.hideAxis('bottom')   
     ##########################
 
     
 
-    xk = [x for x in peaks[0] if x <= 1000]
-    yk = [float(data[0][y]) for y in xk]
+    xk = [x for x in peaks[j] if x <= 1000]
+    yk = [float(data[j][y]) for y in xk]
     
     for i in range(st,st+1000):
-        ax.append(float(data[0][i]))
+        ax.append(float(data[j][i]))
     cnt = len(xk)
    
     def update():
-        global i,j,cnt,xk,yk,text,k,hr
+        global i,j,cnt,xk,yk,text,k,hr,curvePoint, flag, aPos, hrc, rpeaks
         
         s4.clear()
         ax.pop(0)
@@ -171,17 +194,23 @@ def create_dashboard(data, peaks):
                 yk.append(data[j][i])        
         else:
             hr += 100
+            rpeaks += 1
             cnt = 0 
             j += 1
             i = 0
-        if(hr>150):
-            hr = 50
-        
+        if hr > 100:
+            flag = 1    
+        if flag == 1:
+            aPos += 0.001
+            if(aPos>1):
+                aPos = 0
+            curvePoint.setPos(aPos)    
         ax.append(float(data[j][i]))
         posx = [x - 1 for x in xk]
         posy = yk
-        print(i)
-        # if i%50 == 0:
+        print(j, i)
+        # print(i)
+        # if i%5 == 0:
         #     p1.removeItem(img1)
         #     p1.removeItem(text)
         #     p1.removeItem(texthr)
@@ -190,12 +219,14 @@ def create_dashboard(data, peaks):
         #     p1.addItem(img1)
         #     p1.addItem(text) 
         #     p1.addItem(texthr) 
-    
-        
-        text.setText('{}' .format(hr))
+     
+        if i % 2500 == 0:
+            hrc += 1
+            hr = all_hr[hrc]
+        text.setText('{} ' .format(hr))
 
         
-        text1.setText('{}' .format(hr))
+        text1.setText('{} ' .format(hr))
         if hr<100:
             text.setPos(95, y.max()/2 - 160)
             text1.setPos(95, y.max()/2 - 160)

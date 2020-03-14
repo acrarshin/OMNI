@@ -11,41 +11,57 @@ from tqdm import tqdm
 import wfdb as wf
 
 def dist_transform(window_size, ann):
-        length = window_size
-        transform = []
+    
+    """ Compute distance transform of Respiration signaal based on breath positions
+    Arguments:
+        window_size{int} -- Window Length  
+        ann{ndarray} -- The ground truth R-Peaks
+    Returns:
+       ndarray -- transformed signal
+    """
 
-        sample = 0
-        if len(ann) == 0:
-            return None
+    length = window_size
+    transform = []
 
-        if len(ann) ==1:
-            for i in range(window_size):
-                transform.append(abs(i-ann[sample]))
-        else:
-            for i in range(window_size):
+    sample = 0
+    if len(ann) == 0:
+        return None
 
-                if sample+1 == len(ann):
-                    for j in range(i,window_size):
+    if len(ann) ==1:
+        for i in range(window_size):
+            transform.append(abs(i-ann[sample]))
+    else:
+        for i in range(window_size):
 
-                        transform.append(abs(j - nextAnn))
-                    break
-                prevAnn = ann[sample]
-                nextAnn = ann[sample+1]
-                middle = int((prevAnn + nextAnn )/2) 
-                if i < middle:
-                    transform.append(abs(i - prevAnn))
-                elif i>= middle:
-                    transform.append(abs(i- nextAnn))
-                if i == nextAnn:
-                    sample+=1
+            if sample+1 == len(ann):
+                for j in range(i,window_size):
 
-        transform = np.array(transform)
-        minmaxScaler = MinMaxScaler()
-        transform = minmaxScaler.fit_transform(transform.reshape((-1,1)))
-        return transform
+                    transform.append(abs(j - nextAnn))
+                break
+            prevAnn = ann[sample]
+            nextAnn = ann[sample+1]
+            middle = int((prevAnn + nextAnn )/2) 
+            if i < middle:
+                transform.append(abs(i - prevAnn))
+            elif i>= middle:
+                transform.append(abs(i- nextAnn))
+            if i == nextAnn:
+                sample+=1
+
+    transform = np.array(transform)
+    minmaxScaler = MinMaxScaler()
+    transform = minmaxScaler.fit_transform(transform.reshape((-1,1)))
+    return transform
 
 def getWindow(all_paths):
     
+    """ Windowing the ECG and its corresponding Distance Transform
+    Arguments:
+        all_paths{list} -- Paths to all the ECG files
+    Returns:
+        windowed_data{list(ndarray)},windowed_beats{list(ndarray)} -- Returns winodwed ECG and windowed ground truth
+    """
+
     windowed_data = []
     windowed_beats = []
     count = 0
@@ -88,6 +104,16 @@ def getWindow(all_paths):
 
 def testDataEval(model, loader, criterion):
     
+    """Test model on dataloader
+    
+    Arguments:
+        model {torch object} -- Model   
+        loader {torch object} -- Data Loader  
+        criterion {torch object} -- Loss Function
+    Returns:
+        float -- total loss
+    """
+
     model.eval()
     
     with torch.no_grad():
@@ -105,6 +131,16 @@ def testDataEval(model, loader, criterion):
 
 
 def save_model(exp_dir, epoch, model, optimizer,best_dev_loss):
+
+    """ save checkpoint of model 
+    
+    Arguments:
+        exp_dir {string} -- Path to checkpoint
+        epoch {int} -- epoch at which model is checkpointed
+        model -- model state to be checkpointed
+        optimizer {torch optimizer object} -- optimizer state of model to be checkpoint
+        best_dev_loss {float} -- loss of model to be checkpointed
+    """
 
     out = torch.save(
         {
