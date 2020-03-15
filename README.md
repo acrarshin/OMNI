@@ -12,7 +12,7 @@
 * Download ECG from the preterm infant database from https://physionet.org/static/published-projects/picsdb/preterm-infant-cardio-respiratory-signals-database-1.0.0.zip and unzip it. 
 * Download the Heart Rate computation model from here: https://drive.google.com/open?id=1yI7G4nofjuzFWkD1CfsOtLZxaukTu0di
 * Download the Breathing Rate computation model from here: https://drive.google.com/open?id=1ycV74LfGmgcGmLlrPn2VileeFNsGrRZT
-* To run inference and view GUI type: `python run_model.py --path_dir "../../../preterm_cardioresp_data" --saved_hr_model_path "PATH TO MODEL" --saved_br_model_path "PATH TO MODEL" --patient_no 3 --viewer 1`
+* To run inference and view GUI type: `python run_model.py --path_dir "PATH TO DATA" --saved_hr_model_path "PATH TO HR MODEL" --saved_br_model_path "PATH TO BR MODEL" --patient_no 3 --viewer 1`
 
 # OMNI OpenBCI Pi Inference
 
