@@ -1,0 +1,35 @@
+language: python
+python:
+  - "2.7"
+  - "3.4"
+# command to install dependencies
+cache: pip
+sudo: false
+virtualenv:
+  system_site_packages: true
+addons:
+  apt:
+    packages:
+      - libatlas-dev
+      - libatlas3gf-base
+      - libblas-dev
+      - libglib2.0-dev
+      - liblapack-dev
+      - python-matplotlib
+      - gfortran
+      - python-tk
+install:
+  # Install project requirements
+  - pip install -r requirements.txt
+  # Install BluePy for Ganglion because Travis runs Linux
+  - pip install bluepy
+  # Install test and coverage requirements
+  - pip install codecov mock nose coverage pylint
+
+# Run tests
+script:
+  - python setup.py install
+  - nosetests  --with-coverage --cover-package=openbci
+after_success:
+  - codecov
+  - pylint openbci
