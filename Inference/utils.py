@@ -7,7 +7,8 @@ from glob import glob
 import os
 import pyedflib
 from tqdm import tqdm
-from network import IncUNet
+from network import IncUNet_HR,IncUNet_BR
+
 
 import pandas as pd
 import torch
@@ -59,10 +60,12 @@ def obtain_ecg_record(path_records,fs,window_size = 5000):
     actual_ecg_windows = np.asarray(actual_ecg_windows)[:,:,0]
     return ecg_records,actual_ecg_windows
 
-def load_model_CNN(SAVED_MODEL_PATH,test_loader,device,batch_len,window_size):
+    return ecg_records
+
+def load_model_HR(SAVED_MODEL_PATH,test_loader,device,batch_len,window_size):
         
         C,H,W = 1,1,5000
-        loaded_model = IncUNet(in_shape=(C,H,W))    
+        loaded_model = IncUNet_HR(in_shape=(C,H,W))    
         loaded_model.load_state_dict(torch.load(SAVED_MODEL_PATH, map_location = lambda storage, loc: storage, pickle_module=pickle))
         loaded_model.to(device)
         loaded_model.eval()
@@ -92,6 +95,34 @@ def load_model_CNN(SAVED_MODEL_PATH,test_loader,device,batch_len,window_size):
             actual_peak_locs = peak_array[1:]  ### As peak locs were initialized with one. 
         return actual_peak_locs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 
+def load_model_BR(SAVED_MODEL_PATH,test_loader,device,batch_len,window_size):
+        
+    C,H,W = 1,1,5000
+    loadedModel = IncUNet_BR(in_shape=(C,H,W))
+    loadedModel.load_state_dict(torch.load(SAVED_MODEL_PATH)["model"])
+    loadedModel.eval()
+    print("-------- Evaluation --------")
+    net_test_loss = 0   
+    
+    fs_upsample = 500
+    fs_BR = 125
+    no_sec = 10
+    breathsPosition = np.array([])
+    middle_start, middle_end = no_sec*fs_BR//4, 3*no_sec*fs_BR//4
+    start = 0
+    for step,x in enumerate(test_loader):
+        
+        valleys, predicted = np.array(getBR(x[0], loadedModel))        
+        current = valleys[(valleys >= middle_start) & ( valleys <= middle_end)]
+        startBR = int(start/(fs_upsample/fs_BR))
+        if start == 0:
+            breathsPosition = np.append(breathsPosition,valleys[valleys < middle_end])  
+        else:
+            breathsPosition = np.append(breathsPosition, current + startBR)
+
+        start += 2500
+    return breathsPosition
+
 def peak_finder(y_pred_array,x_test):
    
     fs_ = 500 
@@ -107,3 +138,20 @@ def compute_heart_rate(r_peaks):
     r_peaks = r_peaks[(r_peaks >= 0.5*fs_) & (r_peaks <= 9.5*fs_)]
     return round( 60 * fs_ / np.mean(np.diff(r_peaks)))
         
+def smooth(signal,window_len=50):
+    y = pd.DataFrame(signal).rolling(window_len,center = True, min_periods = 1).mean().values.reshape((-1,))
+    return y
+
+def findValleys(signal, prominence = 10, is_smooth = True , distance = 10):
+    """ Return prominent peaks and valleys based on scipy's find_peaks function """
+    smoothened = smooth(-1*signal)
+    valley_loc = scipy.signal.find_peaks(smoothened, prominence=0.05,  distance = 125)[0]
+    return valley_loc
+
+def getBR(signal, model):
+    model.eval()
+    with torch.no_grad():
+        transformPredicted = model(signal)
+    transformPredicted = transformPredicted.cpu().numpy().reshape((-1,))
+    valleys = findValleys(transformPredicted)
+    return valleys, transformPredicted

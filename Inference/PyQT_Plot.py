@@ -1,4 +1,4 @@
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import pyqtgraph as pg
 import random
 import numpy as np
@@ -10,8 +10,8 @@ import tkinter as tk
 import pyqtgraph.ptime as ptime
 
 
-def create_dashboard(data, peaks,all_hr):
-    global i, cnt, j, pk, xk, yk, posx, posy, text, hr, curvePoint, flag, aPos, hrc, rpeaks
+def create_dashboard(data, peaks,all_hr,all_br):
+    global i, cnt, j, pk, xk, yk, posx, posy, text, hr, br, curvePoint, flag, aPos, hrc, chk, pop, fl, w2
   
     class KeyPressWindow(pg.GraphicsLayoutWidget):
         sigKeyPress = QtCore.pyqtSignal(object)
@@ -36,16 +36,30 @@ def create_dashboard(data, peaks,all_hr):
     w1.show()
     w1.resize(tk.Tk().winfo_screenwidth(), tk.Tk().winfo_screenheight())
     
+    w2 = QtWidgets.QMessageBox()
+    w2.setWindowTitle("WARNING/COURSE OF ACTION")
+    
+    # fontp = changingLabel.font()
+    # fontp.setPointSize(16)
+    # fontp.set
+    w2.setFont(QtGui.QFont("sans-serif", 16))
+    
+    
+    
+
     cnt = 0
     s4 = pg.ScatterPlotItem(size=10, pen=pg.mkPen(0.5), brush=pg.mkBrush(0, 0, 255, 120))
     st = 1
-    j = 5
-    rpeaks = 0
+    
+    j = 0
     hrc = 0
-    aPos = 0
+    aPos = 0.5
+    pop = 0
+    fl = 1
     ax = []
     flag = 0
     hr = all_hr[hrc]
+    br = all_br[hrc]
    ############ECG PLOT#############
     p = w1.addPlot(row = 0, col = 0, colspan = 3)
     p.hideAxis('left')
@@ -139,7 +153,7 @@ def create_dashboard(data, peaks,all_hr):
     fontbr.setPointSize(40)
     textbr.setFont(fontbr)
     textbr.setText("BR")
-    textbr.setPos(130, y.max()/2 - 220)
+    textbr.setPos(135, y.max()/2 - 220)
     p2.addItem(text1) 
     p2.addItem(textbr) 
     #################################
@@ -147,21 +161,54 @@ def create_dashboard(data, peaks,all_hr):
 
     ###### MESSAGE #############
     p3 = w1.addPlot(row = 1, col = 2)
-    p3.plot(x = x1,y = y1, pen=(255, 255, 255))
+    # p3.plot(x = x1,y = y1, pen=(0, 0, 0))
     vb3 = p3.getViewBox()
     vb3.setBackgroundColor((255, 255, 255))
-    x4 = np.linspace(0, 850, 10)
-    y4 = [283 for x in x4]
-    fileName3 = '/home/hticpose/Pictures/yellow.jpg'
+    x4 = np.linspace(0, 860, 2)
+    y4 = [-158 for x in x4]
+    for i in range(len(x4)):
+        print("Hello ",x4[i], y4[i])
+    fileName3 = '/home/hticpose/Pictures/red(1).jpg'
     img3 = pg.QtGui.QGraphicsPixmapItem(pg.QtGui.QPixmap(fileName3))
+    img3.scale(1, -1)
     p3.addItem(img3)
     curve = p3.plot(x = x4,y = y4, pen=(255, 255, 255))
     curvePoint = pg.CurvePoint(curve)
     p3.addItem(curvePoint)
+
+    texthr1 = pg.TextItem( "test",color = (0,0,0), anchor=(-0.3,0.5))
+    changingLabel = QtGui.QLabel()
+    fonthr1 = changingLabel.font()
+    fonthr1.setPointSize(40)
+    texthr1.setFont(fonthr1)
+    texthr1.setText("HR")
+    texthr1.setPos(320, y.max()/2 - 270)
+
+
+    p3.addItem(texthr1) 
     arrow2 = pg.ArrowItem(angle=90)
     arrow2.setStyle(headLen = 30)
     arrow2.setParentItem(curvePoint)
-    curvePoint.setPos(aPos)    
+    curvePoint.setPos(aPos) 
+
+    y5 = [-465 for x in x4]
+    curved = p3.plot(x = x4,y = y5, pen=(255, 255, 255))
+    curvedPoint = pg.CurvePoint(curved)
+    p3.addItem(curvedPoint)
+
+    textbr1 = pg.TextItem( "test",color = (0,0,0), anchor=(-0.3,0.5))
+    changingLabel = QtGui.QLabel()
+    fontbr1 = changingLabel.font()
+    fontbr1.setPointSize(40)
+    textbr1.setFont(fontbr1)
+    textbr1.setText("BR")
+    textbr1.setPos(320, y.max()/2 - 570)
+    p3.addItem(textbr1) 
+    arrow1 = pg.ArrowItem(angle=90)
+    arrow1.setStyle(headLen = 30)
+    arrow1.setParentItem(curvedPoint)
+    curvedPoint.setPos(aPos) 
+
     p3.hideAxis('left')
     p3.hideAxis('bottom')   
     ##########################
@@ -170,17 +217,18 @@ def create_dashboard(data, peaks,all_hr):
 
     xk = [x for x in peaks[j] if x <= 1000]
     yk = [float(data[j][y]) for y in xk]
-    
+    chk = 1
     for i in range(st,st+1000):
         ax.append(float(data[j][i]))
     cnt = len(xk)
    
     def update():
-        global i,j,cnt,xk,yk,text,k,hr,curvePoint, flag, aPos, hrc, rpeaks
+        global i,j,cnt,xk,yk,text,k,hr,curvePoint, flag, aPos, hrc, chk, pop, fl, w2, br
         
         s4.clear()
         ax.pop(0)
         
+
         if(len(xk)!=0 and xk[0] < 1):
             xk.pop(0)
             yk.pop(0)
@@ -193,22 +241,77 @@ def create_dashboard(data, peaks,all_hr):
                 xk.append(1000)
                 yk.append(data[j][i])        
         else:
-            hr += 100
-            rpeaks += 1
+            # hr += 100
+            
             cnt = 0 
             j += 1
             i = 0
-        if hr > 100:
-            flag = 1    
-        if flag == 1:
-            aPos += 0.001
-            if(aPos>1):
-                aPos = 0
+      
+        if 110 < hr <120:
+            met = -1
+            flag = 1
+        elif hr <= 110:
+            pop = 1
+            met = -2
+            flag = 1
+        elif 150 < hr < 160:
+            met = 1
+            flag = 1
+        elif hr >= 160:
+            pop = 1
+            met = 2
+            flag = 1  
+        else:
+            
+            if(aPos != 0.5):
+                flag = 1
+                met = 0
+            
+            w2.setIcon(QtWidgets.QMessageBox.Critical)
+        print("Pop ",pop, fl)
+        if pop == 1 and fl == 1:
+            fl = 0
+            print("Pop ",pop, fl)
+            w2.setText("Heart Rate Abnormal\nSeek medical attention immediately")
+            # w2.setMaximumSize(1250, 800)
+            w2.show()
+            print("End")
+
+        if flag == 1 and chk == 1:
+            
+            if met == -2:
+                k = 0
+                d = -1
+            elif met == -1:
+                k = 0.25
+                d = -1
+            elif met == 1:
+                k = 0.75
+                d = 1
+            elif met == 2:
+                k = 1
+                d = 1
+            elif met == 0:
+                k = 0.5
+                if aPos>0.5:
+                    d = -1
+                elif aPos<0.5:
+                    d = 1
+            aPos += d * 0.001
+            if(d == -1):
+                if aPos <= k:
+                    flag = 0
+                    chk = 0
+            elif(d == 1):
+                if aPos >= k:
+                    flag = 0
+                    chk = 0
+
             curvePoint.setPos(aPos)    
+            # curvedPoint.setPos(aPos)    
         ax.append(float(data[j][i]))
         posx = [x - 1 for x in xk]
         posy = yk
-        print(j, i)
         # print(i)
         # if i%5 == 0:
         #     p1.removeItem(img1)
@@ -223,16 +326,20 @@ def create_dashboard(data, peaks,all_hr):
         if i % 2500 == 0:
             hrc += 1
             hr = all_hr[hrc]
+            br = all_br[hrc]
+            chk = 1
+            fl = 1
         text.setText('{} ' .format(hr))
-
+        pop = 0
         
-        text1.setText('{} ' .format(hr))
+        text1.setText('{} ' .format(br))
         if hr<100:
             text.setPos(95, y.max()/2 - 160)
-            text1.setPos(95, y.max()/2 - 160)
+            
         else:
             text.setPos(60, y.max()/2 - 160)
-            text1.setPos(60, y.max()/2 - 160)
+        text1.setPos(95, y.max()/2 - 160)    
+        
         s4.addPoints(x = posx, y = posy)
         curveax.setData(ax)
         
@@ -240,6 +347,8 @@ def create_dashboard(data, peaks,all_hr):
     
     timer.timeout.connect(update)
     timer.start(5)
+
+
          
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()

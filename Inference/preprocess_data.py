@@ -5,16 +5,17 @@ import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm as tqdm
 from scipy import signal
-
+from sklearn.preprocessing import StandardScaler 
 ### Use standard scaler
 
 def data_read(args):
+    
     
     patient_no = args.patient_no
     patient_no -= 1
 
     path_dir = args.path_dir
-    file_dirs = sorted(glob.glob(path_dir+'infant*'))   
+    file_dirs = sorted(glob.glob(os.path.join(path_dir,'infant*')))   
     patient = {'ecg':[],'resp':[],'r_peaks':[],'resp_peaks':[],'brad_onset':[],'ecg_fs':[],'resp_fs':[]}
     
     for i in range(0,len(file_dirs),7):
@@ -47,7 +48,7 @@ def data_read(args):
 
     return patient
 
-def windowing_and_resampling(patient):
+def windowing_and_resampling_hr(patient):
     
     no_sec = 10
     final_ecg_sample_rate = 500
@@ -60,7 +61,7 @@ def windowing_and_resampling(patient):
     for patients in patient[ 'ecg']:
         fs = patient['ecg_fs'][infant_no]
         window_len = no_sec * fs
-        for i in range(len(patients) // window_len-fs):
+        for i in range(len(patients) // (window_len-fs)):
             windowed_patient_overlap['ecg'][infant_no].append(patients[(window_len-fs) * i : ((window_len-fs) * i + window_len)])
             windowed_patient['ecg'][infant_no].append(patients[window_len * i : window_len * (i+1) ])
             if (final_ecg_sample_rate * no_sec) != window_len:
@@ -77,9 +78,33 @@ def windowing_and_resampling(patient):
             if (final_resp_sample_rate * no_sec) != window_len:
                 windowed_patient['resp'][infant_no][i] = custom_resample(windowed_patient['resp'][infant_no][i],patient['resp_fs'][infant_no])
         infant_no += 1
-    
 
     return windowed_patient_overlap,windowed_patient
+
+def windowing_and_resampling_br(patient):
+    
+    scaler = StandardScaler()
+    no_sec = 10
+    final_ecg_sample_rate = 500
+    final_resp_sample_rate = 50
+
+    windowed_patient = {'ecg':[[] for i in range(10)],'resp':[[] for i in range(10)]}
+    windowed_patient_overlap = {'ecg':[[] for i in range(10)],'resp':[[] for i in range(10)]}
+    infant_no = 0
+    overlap_percent = 50
+    overlap = int(50 / 100 * 5000)
+    
+    for patients in patient[ 'ecg']:
+        
+        fs = patient['ecg_fs'][infant_no]
+        window_len = no_sec * fs
+        for i in range(len(patients) // (window_len-overlap)):
+            windowed_patient_overlap['ecg'][infant_no].append(scaler.fit_transform(patients[(window_len-overlap) * i : ((window_len-overlap) * i + window_len)]))
+            if (final_ecg_sample_rate * no_sec) != window_len:
+                windowed_patient_overlap['ecg'][infant_no][i] = signal.resample(windowed_patient_overlap['ecg'][infant_no][i],final_ecg_sample_rate * no_sec)
+        
+        infant_no += 1
+    return windowed_patient_overlap
 
 def custom_resample(resp,fs):
     
