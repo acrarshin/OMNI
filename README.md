@@ -18,18 +18,18 @@
  Edge inference of ECG R-peak detection and Respiration extraction using Raspberry Pi 4 using ECG (OpenBCI Ganglion).
 
 
-# Hardware Design
+## Hardware Design
 
 Wearable ECG electrodes --> OpenBCI Ganglion ---(Bluetooth)---> Raspberry Pi 4
 
-# Software Design
+## Software Design
 
 OpenBCI client ----(LSL)--->  Python -> PyTorch inference --> Breathing Rate, Heart Rate
 
 
-# Installation instruction
+## Installation instruction
 
-## Install PyTorch on Raspberry Pi 4:
+### Install PyTorch on Raspberry Pi 4:
 
  1. Install PyTorch dependicies 
  `sudo apt install libopenblas-dev libblas-dev m4 cmake cython python3-yaml libatlas-base-dev`
@@ -40,7 +40,7 @@ OpenBCI client ----(LSL)--->  Python -> PyTorch inference --> Breathing Rate, He
 
 Refer [here](https://github.com/marcusvlc/pytorch-on-rpi) for troubleshooting 
 
-## Install OpenBCI Ganglion client on Raspberry Pi 4:
+### Install OpenBCI Ganglion client on Raspberry Pi 4:
 
 1. Clone OpenBCI_Python repo
  `git clone htps://github.com/OpenBCI/OpenBCI_Python.git`
@@ -49,7 +49,7 @@ Refer [here](https://github.com/marcusvlc/pytorch-on-rpi) for troubleshooting
 3. Open folder OpenBCI_Python and run   
     `sudo python3 user.py --board ganglion -a streamer_lsl` to open a lab streaming layer stream of sensor data from the ganglion
     
-# Instructions to run to perform real time breathing rate/ heart rate inference using OpenBCI data
+## Instructions to run to perform real time breathing rate/ heart rate inference using OpenBCI data
 1. Run the lsl streamer script to get data to the inference script
 `sudo python3 user.py --board ganglion -a streamer_lsl`
 3. Run the visualization and edge inference code on the pi using  `python3 lsl_openbci.py`
