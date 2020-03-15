@@ -4,7 +4,7 @@
 * Download ECG MITDB monitoring data from https://storage.googleapis.com/mitdb-1.0.0.physionet.org/mit-bih-arrhythmia-database-1.0.0.zip and unzip it.
 * To train: `python train.py --preprocess_data --data_path "PATH TO DATA"` 
 
-## Train a model to extract Breathing waveform peaks and Breathing Rate from ECG waveform. 
+## Train a model to extract Breathing Rate from ECG waveform. 
 * Download ECG from the BIDMC database which is derived from MIMIC-II from https://physionet.org/static/published-projects/bidmc/bidmc-ppg-and-respiration-dataset-1.0.0.zip and unzip it.
 * To train: `python train.py --preprocess_data --data_path "PATH TO DATA"`
 
