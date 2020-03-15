@@ -5,12 +5,13 @@
 * To train: `python train.py --preprocess_data --data_path "PATH TO DATA"` 
 
 ## Train a model to extract Breathing Rate from ECG waveform. 
-* Download ECG from the BIDMC database which is derived from MIMIC-II from https://physionet.org/static/published-projects/bidmc/bidmc-ppg-and-respiration-dataset-1.0.0.zip and unzip it.
+* Download ECG from the BIDMC database which is derived from MIMIC-II from https://physionet.org/static/published-projects/bidmc/bidmc-ppg-and-respiration-dataset-1.0.0.zip and unzip it. 
 * To train: `python train.py --preprocess_data --data_path "PATH TO DATA"`
 
 ## Model Inference
 * Download ECG from the preterm infant database from https://physionet.org/static/published-projects/picsdb/preterm-infant-cardio-respiratory-signals-database-1.0.0.zip and unzip it. 
-* Download the R Peak computation model from here: https://drive.google.com/open?id=1yI7G4nofjuzFWkD1CfsOtLZxaukTu0di
+* Download the Heart Rate computation model from here: https://drive.google.com/open?id=1yI7G4nofjuzFWkD1CfsOtLZxaukTu0di
+* Download the Breathing Rate computation model from here: https://drive.google.com/open?id=1ycV74LfGmgcGmLlrPn2VileeFNsGrRZT
 * To run inference and view GUI type: `python run_model.py --path_dir "PATH TO DATA" --saved_model_path "PATH TO MODEL" --patient_no 3 --viewer 1`
 
 # OMNI OpenBCI Pi Inference
