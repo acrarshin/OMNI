@@ -89,4 +89,4 @@ Refer [here](https://github.com/marcusvlc/pytorch-on-rpi) for troubleshooting
 ![image](https://user-images.githubusercontent.com/1295467/76792925-742dbb00-679a-11ea-8865-6d5f8c83cfe6.png)
 
 ![image](images/output_pi.gif)
-Above is an example prediction for noisy real time ECG data obtained using the edge inference model. The beat predictions are reperesented as blue markers on the ECG.
+Above is an example prediction for noisy real time ECG data obtained using the edge inference model. The beat predictions are reperesented as blue markers on the ECG. Note that the real time prediction is done for 10 seconds data.
