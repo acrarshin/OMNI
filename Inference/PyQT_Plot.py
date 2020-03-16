@@ -82,7 +82,7 @@ def create_dashboard(data, peaks,all_hr, all_br):
     hrbg = hrwind.getViewBox()
     hrbg.setBackgroundColor((255, 255, 255))
 
-    fileNamehr = '/home/hticpose/Pictures/Picture3.jpg'
+    fileNamehr = '../images/HR.jpg'
     imghr = pg.QtGui.QGraphicsPixmapItem(pg.QtGui.QPixmap(fileNamehr))
     imghr.scale(1, -1)
     
@@ -118,7 +118,7 @@ def create_dashboard(data, peaks,all_hr, all_br):
     brbg = brwind.getViewBox()
     brbg.setBackgroundColor((255, 255, 255))
     
-    filebr = '/home/hticpose/Pictures/edit br.jpg'
+    filebr = '../images/BR.jpg'
     imgbr = pg.QtGui.QGraphicsPixmapItem(pg.QtGui.QPixmap(filebr))
     imgbr.scale(1, -1)
     brwind.addItem(imgbr)
@@ -149,7 +149,7 @@ def create_dashboard(data, peaks,all_hr, all_br):
     curvex3 = np.linspace(0, 860, 2)
     curvey3 = [-158 for x in curvex3]
 
-    fileslider = '/home/hticpose/Pictures/red(1).jpg'
+    fileslider = '../images/Slider.jpg'
     imgslid = pg.QtGui.QGraphicsPixmapItem(pg.QtGui.QPixmap(fileslider))
     imgslid.scale(1, -1)
     slidwind.addItem(imgslid)
