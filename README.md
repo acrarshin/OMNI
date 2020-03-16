@@ -1,5 +1,10 @@
 # OMNI (Open Source Monitoring of Neonates and Infants) 
 
+<p align="center">
+  <image src = 'images/omni-logo.png' >
+</p>
+
+
 ## Train a model to extract R peaks and Heart Rate from ECG waveform.  
 * Download ECG MITDB monitoring data from https://storage.googleapis.com/mitdb-1.0.0.physionet.org/mit-bih-arrhythmia-database-1.0.0.zip and unzip it.
 * To train: `python train.py --preprocess_data --data_path "PATH TO DATA"` 
