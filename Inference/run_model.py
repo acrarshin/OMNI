@@ -26,10 +26,10 @@ def main(args):
     print('-------- Pre-processing Complete for BR---------')
 
     ###
-    patient_ecg = np.asarray(windowed_patient_overlap['ecg'][0][:20])
-    actual_ecg_windows = np.asarray(windowed_patient['ecg'][0][:20])
+    patient_ecg = np.asarray(windowed_patient_overlap['ecg'][0][:60])
+    actual_ecg_windows = np.asarray(windowed_patient['ecg'][0][:60])
     
-    patient_ecg_br = np.asarray(windowed_patient_overlap_br['ecg'][0][:20])
+    patient_ecg_br = np.asarray(windowed_patient_overlap_br['ecg'][0][:60])
     ###
 
     batch_len = 32
@@ -104,8 +104,7 @@ def main(args):
             if(i< len(actual_ecg_windows)):
                 ecg_point.append(actual_ecg_windows[i-1,scatter_peak[k]])
                 k = k+1
-    # print(all_hr)
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
     if(args.viewer):
         create_dashboard(actual_ecg_windows,scatter_peak_1,all_hr,all_br)
     
@@ -118,15 +117,12 @@ if __name__ == "__main__":
     parser.add_argument('--path_dir',help = 'Path to all the records')
     parser.add_argument('--saved_hr_model_path',help = 'Path to saved Heart rate model')
     parser.add_argument('--saved_br_model_path',help = 'Path to saved breathing rate model')
-    parser.add_argument('--patient_no',default = 3,type = int,help = 'Patient used for testing')
-    parser.add_argument('--device',default = 'cpu', help = 'cpu/cuda')
+    parser.add_argument('--patient_no',default = 8,type = int,help = 'Patient used for testing')
+    parser.add_argument('--device',default = 'cuda', help = 'cpu/cuda')
     parser.add_argument('--save_dir',default = 'saved_models/',help = 'Directory used for saving')
     parser.add_argument('--viewer',default = 0,type = int, help = 'To view ECG plot: 1, else: 0')
     
     args = parser.parse_args()
-
-    # if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-        # QtGui.QApplication.instance().exec_()
 
     main(args)
     
