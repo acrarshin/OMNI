@@ -11,7 +11,7 @@ Run `sh requirements.sh` in a virtual environment in order to download the requi
 
 ## Hardware Requirements (Edge implementation)
 
-![Edge HW block diag](https://user-images.githubusercontent.com/1295467/76792305-21073880-6799-11ea-97a9-ef0c25a8d191.png)
+![Edge HW block diag](https://user-images.githubusercontent.com/1295467/76793817-21ed9980-679c-11ea-865e-c0ff6ecba75b.png)
 ### Components needed:
 
  1. [OpenBCI Ganglion kit](https://shop.openbci.com/products/ganglion-board?variant=13461804483)
