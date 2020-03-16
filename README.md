@@ -4,8 +4,27 @@
   <image src = 'images/omni-logo.png' >
 </p>
 
+
+
 ## Software Requirements
 Run `sh requirements.sh` in a virtual environment in order to download the required libraries. 
+
+## Hardware Requirements (Edge implementation)
+
+![Edge HW block diag](https://user-images.githubusercontent.com/1295467/76792305-21073880-6799-11ea-97a9-ef0c25a8d191.png)
+### Components needed:
+
+ 1. [OpenBCI Ganglion kit](https://shop.openbci.com/products/ganglion-board?variant=13461804483)
+ 
+	 Open source biosignal acquisition hardware for [research grade biosignal acquisition](https://openbci.com/community/published-research-with-openbci/)
+ 
+ 2. [Raspberry Pi 4](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
+ 3. [Rasberry Pi 4 cooling case](https://www.newegg.com/p/1W8-00Y1-00032)
+ 4. Shirt using [conductive textile electrodes](https://www.alibaba.com/product-detail/Conductive-textile-ecg-Electrodes_1127697682.html) [1$ for 1 electrode]
+ 
+
+Wearable ECG electrodes --> OpenBCI Ganglion ---(Bluetooth)---> Raspberry Pi 4
+
 ## System Configuration
 * Ubuntu 16.04
 * Nvidia 1080Ti - (Required for training the model)
@@ -64,3 +83,8 @@ Refer [here](https://github.com/marcusvlc/pytorch-on-rpi) for troubleshooting
 1. Run the lsl streamer script to get data to the inference script
 `sudo python3 user.py --board ganglion -a streamer_lsl`
 3. Run the visualization and edge inference code on the pi using  `python3 lsl_openbci.py`
+
+
+## Sample Predictions
+![image](https://user-images.githubusercontent.com/1295467/76792925-742dbb00-679a-11ea-8865-6d5f8c83cfe6.png)
+Above is an example prediction for noisy real time ECG data obtained using the edge inference model. The beat predictions are reperesented as blue markers on the ECG.
