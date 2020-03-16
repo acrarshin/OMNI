@@ -5,7 +5,7 @@
 </p>
 
 ## Software Requirements
-Run `sh.requirements.sh` in a virtual environment in order to download the required libraries. 
+Run `sh requirements.sh` in a virtual environment in order to download the required libraries. 
 ## System Configuration
 * Ubuntu 16.04
 * Nvidia 1080Ti - (Required for training the model)
